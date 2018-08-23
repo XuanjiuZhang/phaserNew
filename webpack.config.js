@@ -1,4 +1,7 @@
 var path = require("path")
+var webpack = require('webpack')
+var HtmlWebpackPlugin = require('html-webpack-plugin')
+
 module.exports = {
   devServer: {
     contentBase: path.join(__dirname, "dist"),
@@ -6,28 +9,32 @@ module.exports = {
     compress: true,
     port: 8099
   },
+  context: path.join(__dirname, 'src'),
+  resolve: {
+    modules: [
+      path.join(__dirname, 'src'),
+      'node_modules'
+    ],
+    alias: { 
+    },
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.css', '.less']
+  },
+  entry: {
+    app: './index.ts'   
+  },
+  output: {
+    filename: '[name].js',
+  },
   module: {
     rules: [
       {
-        test: /(\.js)|(\.ts)|(\.jsx)|(\.tsx)$/,
-        loader: 'eslint-loader',
-        enforce: 'pre',
-        options: {
-          formatter: require('eslint-friendly-formatter')
-        }
-      },
-      {
-        test: /(\.js)|(\.jsx)$/,
+        test: /(\.js)|(\.jsx)|(\.ts)|(\.tsx)$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
         options: {
-          presets: ["es2015", "react"]
+          presets: ['react', 'es2015', 'stage-0', "mobx"],
+          plugins: ['transform-runtime']
         }
-      },
-      {
-        test: /(\.ts)|(\.tsx)?$/,
-        loader: 'ts-loader',
-        exclude: /node_modules/,
       },
       {
         test: /\.css/,
@@ -45,5 +52,19 @@ module.exports = {
         }
       }
     ]
-  }
+  },
+  plugins: [
+    new webpack.DllReferencePlugin({
+      context: __dirname,
+      manifest: require('./src/lib/vendor-manifest.json')
+    }),
+    new HtmlWebpackPlugin(
+      {
+        hash: true,
+        inject: true,
+        chunks: ['app'],
+        template: 'index.html',
+        filename: 'index.html'
+    })
+  ]
 }  

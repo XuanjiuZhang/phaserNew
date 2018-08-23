@@ -31,39 +31,23 @@ function delHtml() {
   ])
 }
 
-gulp.task('dist', gulp.series(
+function cpCss() {
+  return gulp.src(['./src/css/**/*']).pipe(gulp.dest('./dist/css'))  
+}
+
+function delCss() {
+  return del([
+    './dist/css/*'
+  ])
+}
+
+gulp.task('copy', gulp.series(
   delImg,
   delHtml,
   delLib,
+  delCss,
   cpImg,
   cpHtml,
-  cpLib
+  cpLib,
+  cpCss
 ))
-
-// function cleanDev() { console.log('kk') }
-// function cleanDist() { console.log('kk') }
-// function sprite() { console.log('kk') }
-// function compileCss() { console.log('kk') }
-// function compileJs() { console.log('kk') }
-// function copyHtml() { console.log('kk') }
-// function reversion() { console.log('kk') }
-// function replcae() { console.log('kk') }
-
-// gulp.task('dist', gulp.series(
-//   gulp.parallel(
-//     gulp.series(
-//       cleanDev,
-//       gulp.parallel(
-//         gulp.series(
-//           sprite,
-//           compileCss
-//         ),
-//         compileJs,
-//         copyHtml
-//       )
-//     ),
-//     cleanDist
-//   ),
-//   reversion,
-//   replcae
-// ))
