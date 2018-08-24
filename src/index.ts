@@ -11,7 +11,8 @@ var config = {
   },
   scene: {
     preload: preload,
-    create: create
+    create: create,
+    update: update
   }
 }
 
@@ -36,7 +37,7 @@ function getDotPoints(startX, startY, side, level) {
     for(let n = 0; n < pointNum; n++) {
       let point = {
         x: startX + leftOffset + n * side,
-        y: startY + i * (side * 1.732)
+        y: startY + i * (side / 2 * 1.732)
       }
       points.push(point)
     }
@@ -45,14 +46,23 @@ function getDotPoints(startX, startY, side, level) {
   return points
 }
 
+var dotGroup = new Phaser.GameObjects.Group(global.scene)
+var coin
+
 function create() {
-  // global.scene = this
+  global.scene = this
   // console.log(this)
   // new Image(scene, x, y, texture [, frame])
   this.add.image(400, 300, 'sky')
-  const dotPoints: any = getDotPoints(400, 300, 100, 2)
+  const dotPoints: any = getDotPoints(400, 120, 120, 5)
   dotPoints.forEach(element => {
-    this.physics.add.image(element.x, element.y, 'coin')
+    const dot = this.physics.add.image(element.x, element.y, 'rec')
+    dot.setInteractive(new Phaser.Geom.Circle(0, 0 , 16), function(hitArea, x, y, gameObject) {
+      console.log('hitArea', hitArea)
+      console.log(x, y)
+      return false
+    }).setImmovable()
+    dotGroup.add()
   })
 
   // var particles = this.add.particles('red')
@@ -63,11 +73,34 @@ function create() {
   //   blendMode: 'ADD'
   // })
 
-  var coin = this.physics.add.image(400, 100, 'coin')
+  coin = this.physics.add.image(400, -500, 'coin')
 
-  coin.setVelocity(0, 0)
-  coin.setBounce(1, 0.2)
+  console.log('coin', coin)
+  coin.setVelocity(0, 50)
+  coin.setBounce(1, 0.6)
   coin.setCollideWorldBounds(true)
+  coin.setGravityY(1000)
+  coin.setInteractive(new Phaser.Geom.Circle(0, 0 , 32), function(hitArea, x, y, gameObject) {
+    console.log('hitArea', hitArea)
+    console.log(x, y)
+    return false
+  })
 
   // emitter.startFollow(logo)
+
+  console.log(this.physics.world.collide)
+
+}
+
+function update ()
+{
+    this.physics.world.collide(coin, dotGroup, function () {
+        console.log('hit?');
+        coin.setAngularVelocity(-300)
+        if (Math.random() > 0.5) {
+          coin.setVelocityX(100)
+        } else {
+          coin.setVelocityX(-100)
+        }
+    });
 }
