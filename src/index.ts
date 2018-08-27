@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 var config = {
   type: Phaser.AUTO,
   parent: 'root',
@@ -57,12 +59,9 @@ function create() {
   const dotPoints: any = getDotPoints(400, 120, 120, 5)
   dotPoints.forEach(element => {
     const dot = this.physics.add.image(element.x, element.y, 'rec')
-    dot.setInteractive(new Phaser.Geom.Circle(0, 0 , 16), function(hitArea, x, y, gameObject) {
-      console.log('hitArea', hitArea)
-      console.log(x, y)
-      return false
-    }).setImmovable()
-    dotGroup.add()
+    dot.setInteractive(new Phaser.Geom.Circle(0, 0 , 16), Phaser.Geom.Circle.Contains)
+    dot.setImmovable()
+    dotGroup.add(dot)
   })
 
   // var particles = this.add.particles('red')
@@ -77,30 +76,31 @@ function create() {
 
   console.log('coin', coin)
   coin.setVelocity(0, 50)
-  coin.setBounce(1, 0.6)
+  coin.setBounce(0.6, 0.6)
   coin.setCollideWorldBounds(true)
-  coin.setGravityY(1000)
-  coin.setInteractive(new Phaser.Geom.Circle(0, 0 , 32), function(hitArea, x, y, gameObject) {
-    console.log('hitArea', hitArea)
-    console.log(x, y)
-    return false
-  })
+  // coin.setGravityY(1000)
+  coin.setInteractive(new Phaser.Geom.Circle(0, 0 , 32), Phaser.Geom.Circle.Contains)
 
   // emitter.startFollow(logo)
 
-  console.log(this.physics.world.collide)
-
 }
+
+const oncec = _.once(function(obj1, obj2) {
+  console.log(obj1, obj2)
+  // if (Math.random() > 0.5) {
+  //   obj1.setAngularVelocity(-300)
+  //   obj1.setVelocityX(50)
+  // } else {
+  //   obj1.setAngularVelocity(300)
+  //   obj1.setVelocityX(-50)
+  // }
+  console.log(this)
+  this.physics.moveTo(obj1, 100, 200, 300)
+})
 
 function update ()
 {
-    this.physics.world.collide(coin, dotGroup, function () {
-        console.log('hit?');
-        coin.setAngularVelocity(-300)
-        if (Math.random() > 0.5) {
-          coin.setVelocityX(100)
-        } else {
-          coin.setVelocityX(-100)
-        }
-    });
+  this.physics.world.collide(coin, dotGroup, function (obj1, obj2) {
+    this.physics.moveTo(obj1, obj1.x - 100, obj1.y, 300)
+  }.bind(this))
 }
