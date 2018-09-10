@@ -25,6 +25,7 @@ function preload() {
   this.load.image('logo', 'http://labs.phaser.io/assets/sprites/phaser3-logo.png')
   this.load.image('coin', 'img/items/coin.png')
   this.load.image('rec', 'img/items/rec.png')
+  this.load.image('play', 'img/items/play.png')
 }
 
 function getDotPoints(startX, startY, side, level) {
@@ -75,6 +76,10 @@ var coin
 function create() {
   global.scene = this
   this.add.image(400, 300, 'sky')
+  const playImage = this.add.image(100, 200, 'play').setInteractive()
+  playImage.scaleX = 0.15
+  playImage.scaleY = 0.15
+  
   const dotPoints = getDotPoints(400, 120, 120, 5)
   _.flatten(dotPoints).forEach(element => {
     const dot = this.physics.add.image(element.x, element.y, 'rec')
@@ -87,20 +92,29 @@ function create() {
 
   const pathPoints = getCoinPathByGroup(dotPoints, 60)
 
-  pathPoints.forEach((point, index) => {
-    this.tweens.add({
-      targets: coin,
-      x: point.x,
-      y: point.y - 64,
-      duration: 600,
-      ease: 'Power1',
-      delay: 600 * index,
-      onComplete: () => {
-        coin.x = point.x
-        coin.y = point.y - 64
-      }
+  const startPlay = () => {
+    console.log('startPlay!')
+    coin.x = 400
+    coin.y = 56
+    pathPoints.forEach((point, index) => {
+      this.tweens.add({
+        targets: coin,
+        x: point.x,
+        y: point.y - 64,
+        duration: 600,
+        ease: 'Power1',
+        delay: 600 * index,
+        onComplete: () => {
+          coin.x = point.x
+          coin.y = point.y - 64
+        }
+      })
     })
-  })
+  }
+
+  startPlay()
+
+  playImage.on('pointerdown', startPlay)
 
   var particles = this.add.particles('coin')
   var emitter = particles.createEmitter({
